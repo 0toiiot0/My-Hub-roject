@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MY HUB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF9F6;
+    --bg-hover: #F2F0EB;
+    --text: #1A1A1A;
+    --text-muted: #6B6863;
+    --border: #E5E3DE;
+    --accent: #4A6D80;
+    --accent-strong: #3A5665;
+    --accent-tint: #EAEFF2;
+
+    --font-logo: 'EB Garamond', Georgia, serif;
+    --font-body: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+
+    --ease: cubic-bezier(0.2, 0, 0.2, 1);
+    --duration-fast: 150ms;
+    --duration-base: 220ms;
+    --duration-slow: 400ms;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    overflow: hidden;
+  }
+
+  .intro {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 24px;
+  }
+
+  .logo {
+    font-family: var(--font-logo);
+    font-size: 72px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fade-in var(--duration-slow) var(--ease) forwards;
+    animation-delay: 0ms;
+  }
+
+  .tagline {
+    margin-top: 24px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.6;
+    color: var(--text-muted);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fade-in var(--duration-slow) var(--ease) forwards;
+    animation-delay: 120ms;
+  }
+
+  .enter-btn {
+    margin-top: 64px;
+    font-family: var(--font-mono), var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--text);
+    border-radius: 2px;
+    padding: 14px 40px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fade-in var(--duration-slow) var(--ease) forwards;
+    animation-delay: 240ms;
+    transition: background var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease);
+  }
+
+  .enter-btn:hover {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .enter-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @keyframes fade-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 639px) {
+    .logo {
+      font-size: 40px;
+    }
+    .tagline {
+      font-size: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="intro">
+    <h1 class="logo">MY HUB</h1>
+    <p class="tagline">만들고, 판단하고, 기록합니다</p>
+    <a class="enter-btn" href="#" id="enter-link">ENTER</a>
+  </main>
+
+  <script>
+    const enterLink = document.getElementById('enter-link');
+
+    function enterHub() {
+      window.location.href = enterLink.getAttribute('href');
+    }
+
+    enterLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      enterHub();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        enterHub();
+      }
+    });
+  </script>
+</body>
+</html>
