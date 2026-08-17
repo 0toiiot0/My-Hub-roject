@@ -65,6 +65,28 @@
     max-width: 1120px;
     margin: 0 auto;
     padding: 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-logo {
+    font-family: var(--font-mono), var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: var(--text);
+    transition: color var(--duration-fast) var(--ease);
+  }
+
+  .header-logo:hover {
+    color: var(--text-muted);
+  }
+
+  .header-logo:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .header-name {
@@ -401,12 +423,39 @@
     line-height: 1.8;
   }
 
-  .modal-description {
-    margin-top: 16px;
-    font-size: 14px;
+  .modal-sections {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .modal-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .modal-section-text {
+    font-size: 17px;
     line-height: 1.75;
     color: var(--text);
     white-space: pre-line;
+  }
+
+  .modal-section-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  .modal-section-list li + li {
+    margin-top: 4px;
   }
 
   .modal-tech {
@@ -491,7 +540,8 @@
 <body>
   <header class="site-header">
     <div class="header-inner">
-      <a class="header-name" href="index.html">채슬</a>
+      <a class="header-logo" href="index.html">MY HUB</a>
+      <span class="header-name">채슬</span>
     </div>
   </header>
 
@@ -514,7 +564,7 @@
       <h2 class="modal-title" id="modal-title"></h2>
       <p class="modal-tagline" id="modal-tagline"></p>
       <p class="modal-meta" id="modal-meta"></p>
-      <p class="modal-description" id="modal-description"></p>
+      <div class="modal-sections" id="modal-sections"></div>
       <div class="modal-tech" id="modal-tech"></div>
       <div class="modal-actions">
         <a class="modal-link" id="modal-link" target="_blank" rel="noopener">사이트로 이동 &rarr;</a>
@@ -529,9 +579,14 @@
       {
         order: 1,
         status: 'done',
-        title: 'Food Review',
+        title: '자리 있어',
         tagline: '음식점 리뷰 웹앱',
         description: '여럿이 모일 약속 장소를 정할 때, 후기를 먼저 확인하고 만족스러운 자리를 고를 수 있는 서비스 "자리있어"의 랜딩 페이지입니다. 인기 맛집과 후기를 보여주며, AI 리뷰 요약·감성 분석·통계 대시보드는 추후 추가될 예정입니다. (현재 데이터는 데모용 가짜 정보)',
+        features: [
+          '인기 맛집 목록 확인',
+          '방문자 후기 확인',
+        ],
+        troubleshooting: '',
         period: '2026.08.14',
         role: '1인 개발 (기획·디자인·개발)',
         tech: ['HTML', 'CSS', 'JavaScript', 'Vercel'],
@@ -610,7 +665,7 @@
     const modalImage = document.getElementById('modal-image');
     const modalImageImg = document.getElementById('modal-image-img');
     const modalMeta = document.getElementById('modal-meta');
-    const modalDescription = document.getElementById('modal-description');
+    const modalSections = document.getElementById('modal-sections');
     const modalTech = document.getElementById('modal-tech');
     const modalLink = document.getElementById('modal-link');
     const modalGithub = document.getElementById('modal-github');
@@ -630,8 +685,43 @@
         modalImage.hidden = true;
       }
 
-      modalDescription.textContent = project.description || '';
-      modalDescription.hidden = !project.description;
+      modalSections.innerHTML = '';
+      const sections = [
+        { title: '프로젝트 소개', text: project.description },
+        { title: '주요 기능', list: project.features },
+        { title: '트러블슈팅', text: project.troubleshooting },
+      ];
+      sections.forEach(function (section) {
+        const hasList = Array.isArray(section.list) && section.list.length > 0;
+        const hasText = !hasList && section.text;
+        if (!hasList && !hasText) return;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'modal-section';
+
+        const heading = document.createElement('h3');
+        heading.className = 'modal-section-title';
+        heading.textContent = section.title;
+        wrap.appendChild(heading);
+
+        if (hasList) {
+          const ul = document.createElement('ul');
+          ul.className = 'modal-section-list';
+          section.list.forEach(function (item) {
+            const li = document.createElement('li');
+            li.textContent = item;
+            ul.appendChild(li);
+          });
+          wrap.appendChild(ul);
+        } else {
+          const p = document.createElement('p');
+          p.className = 'modal-section-text';
+          p.textContent = section.text;
+          wrap.appendChild(p);
+        }
+
+        modalSections.appendChild(wrap);
+      });
 
       const metaParts = [project.period, project.role].filter(Boolean);
       modalMeta.textContent = metaParts.join(' · ');
