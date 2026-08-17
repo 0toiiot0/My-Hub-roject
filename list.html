@@ -352,6 +352,22 @@
     outline-offset: 2px;
   }
 
+  .modal-image {
+    aspect-ratio: 16 / 10;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .modal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
   .modal-order {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -376,8 +392,76 @@
     color: var(--text-muted);
   }
 
-  .modal-link {
+  .modal-meta {
+    margin-top: 16px;
+    font-family: var(--font-mono), var(--font-body);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .modal-description {
+    margin-top: 16px;
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-line;
+  }
+
+  .modal-tech {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tech-badge {
+    font-family: var(--font-mono), var(--font-body);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--accent-strong);
+    background: var(--accent-tint);
+    border-radius: 2px;
+    padding: 4px 8px;
+  }
+
+  .modal-actions {
     margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .modal-link-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono), var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 12px 24px;
+    text-decoration: none;
+    transition: background var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease);
+  }
+
+  .modal-link-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent);
+  }
+
+  .modal-link-secondary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .modal-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -425,17 +509,36 @@
   <div class="modal-overlay" id="modal-overlay" hidden>
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <button class="modal-close" id="modal-close" type="button" aria-label="닫기">&times;</button>
+      <div class="modal-image" id="modal-image" hidden><img id="modal-image-img" src="" alt=""></div>
       <span class="modal-order" id="modal-order"></span>
       <h2 class="modal-title" id="modal-title"></h2>
       <p class="modal-tagline" id="modal-tagline"></p>
-      <a class="modal-link" id="modal-link" target="_blank" rel="noopener">사이트로 이동 &rarr;</a>
+      <p class="modal-meta" id="modal-meta"></p>
+      <p class="modal-description" id="modal-description"></p>
+      <div class="modal-tech" id="modal-tech"></div>
+      <div class="modal-actions">
+        <a class="modal-link" id="modal-link" target="_blank" rel="noopener">사이트로 이동 &rarr;</a>
+        <a class="modal-link-secondary" id="modal-github" target="_blank" rel="noopener">GitHub &rarr;</a>
+      </div>
     </div>
   </div>
 
   <script>
     // data/projects.ts (PRD §6)와 동일한 구조. 지금은 전부 coming-soon.
     const projects = [
-      { order: 1, status: 'done', title: 'Food Review', tagline: '음식점 리뷰 웹앱', link: 'https://food-review-gamma.vercel.app/', thumb: 'assets/thumbnails/food-review.jpg' },
+      {
+        order: 1,
+        status: 'done',
+        title: 'Food Review',
+        tagline: '음식점 리뷰 웹앱',
+        description: '여럿이 모일 약속 장소를 정할 때, 후기를 먼저 확인하고 만족스러운 자리를 고를 수 있는 서비스 "자리있어"의 랜딩 페이지입니다. 인기 맛집과 후기를 보여주며, AI 리뷰 요약·감성 분석·통계 대시보드는 추후 추가될 예정입니다. (현재 데이터는 데모용 가짜 정보)',
+        period: '2026.08.14',
+        role: '1인 개발 (기획·디자인·개발)',
+        tech: ['HTML', 'CSS', 'JavaScript', 'Vercel'],
+        link: 'https://food-review-gamma.vercel.app/',
+        github: 'https://github.com/0toiiot0/FoodReview',
+        thumb: 'assets/thumbnails/food-review.jpg',
+      },
       { order: 2, status: 'coming-soon', title: null },
       { order: 3, status: 'coming-soon', title: null },
       { order: 4, status: 'coming-soon', title: null },
@@ -504,7 +607,13 @@
     const modalOrder = document.getElementById('modal-order');
     const modalTitle = document.getElementById('modal-title');
     const modalTagline = document.getElementById('modal-tagline');
+    const modalImage = document.getElementById('modal-image');
+    const modalImageImg = document.getElementById('modal-image-img');
+    const modalMeta = document.getElementById('modal-meta');
+    const modalDescription = document.getElementById('modal-description');
+    const modalTech = document.getElementById('modal-tech');
     const modalLink = document.getElementById('modal-link');
+    const modalGithub = document.getElementById('modal-github');
     let lastFocusedCard = null;
 
     function openModal(project, triggerEl) {
@@ -513,11 +622,43 @@
       modalTitle.textContent = project.title || '';
       modalTagline.textContent = project.tagline || '';
 
+      if (project.thumb) {
+        modalImageImg.src = project.thumb;
+        modalImageImg.alt = (project.title || '') + ' 썸네일';
+        modalImage.hidden = false;
+      } else {
+        modalImage.hidden = true;
+      }
+
+      modalDescription.textContent = project.description || '';
+      modalDescription.hidden = !project.description;
+
+      const metaParts = [project.period, project.role].filter(Boolean);
+      modalMeta.textContent = metaParts.join(' · ');
+      modalMeta.hidden = metaParts.length === 0;
+
+      modalTech.innerHTML = '';
+      const techList = project.tech || [];
+      modalTech.hidden = techList.length === 0;
+      techList.forEach(function (tech) {
+        const badge = document.createElement('span');
+        badge.className = 'tech-badge';
+        badge.textContent = tech;
+        modalTech.appendChild(badge);
+      });
+
       if (project.link) {
         modalLink.href = project.link;
         modalLink.hidden = false;
       } else {
         modalLink.hidden = true;
+      }
+
+      if (project.github) {
+        modalGithub.href = project.github;
+        modalGithub.hidden = false;
+      } else {
+        modalGithub.hidden = true;
       }
 
       overlay.hidden = false;
