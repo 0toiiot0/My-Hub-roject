@@ -281,6 +281,119 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* ---------- Detail Modal ---------- */
+
+  body.modal-open {
+    overflow: hidden;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 100;
+  }
+
+  .modal-overlay[hidden] {
+    display: none;
+  }
+
+  .modal-box {
+    width: 100%;
+    max-width: 560px;
+    max-height: min(640px, 90vh);
+    overflow-y: auto;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 40px;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: color var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+  }
+
+  .modal-close:hover {
+    color: var(--text);
+    background: var(--bg-hover);
+  }
+
+  .modal-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .modal-order {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .modal-title {
+    margin-top: 8px;
+    font-family: var(--font-body);
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--text);
+    padding-right: 24px;
+  }
+
+  .modal-tagline {
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .modal-link {
+    margin-top: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono), var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--text);
+    border-radius: 2px;
+    padding: 12px 24px;
+    text-decoration: none;
+    transition: background var(--duration-fast) var(--ease);
+  }
+
+  .modal-link:hover {
+    background: var(--accent-strong);
+  }
+
+  .modal-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 </style>
 </head>
 <body>
@@ -300,6 +413,16 @@
       <a class="footer-link" href="https://github.com/yourname" target="_blank" rel="noopener">GitHub</a>
     </div>
   </footer>
+
+  <div class="modal-overlay" id="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="modal-close" type="button" aria-label="닫기">&times;</button>
+      <span class="modal-order" id="modal-order"></span>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <p class="modal-tagline" id="modal-tagline"></p>
+      <a class="modal-link" id="modal-link" target="_blank" rel="noopener">사이트로 이동 &rarr;</a>
+    </div>
+  </div>
 
   <script>
     // data/projects.ts (PRD §6)와 동일한 구조. 지금은 전부 coming-soon.
@@ -331,16 +454,10 @@
       const title = project.title || 'Coming Soon';
       const tagline = project.tagline || '';
 
-      const hasLink = !isComingSoon && !!project.link;
-      const tag = isComingSoon ? 'div' : (hasLink ? 'a' : 'button');
-      const card = document.createElement(tag);
+      const card = document.createElement(isComingSoon ? 'div' : 'button');
       card.className = 'card' + (isComingSoon ? ' is-disabled' : '');
       if (isComingSoon) {
         card.setAttribute('aria-disabled', 'true');
-      } else if (hasLink) {
-        card.href = project.link;
-        card.target = '_blank';
-        card.rel = 'noopener';
       } else {
         card.type = 'button';
       }
@@ -354,9 +471,9 @@
           '<span class="badge ' + badge.className + '">' + badge.text + '</span>' +
         '</div>';
 
-      if (!isComingSoon && !hasLink) {
+      if (!isComingSoon) {
         card.addEventListener('click', function () {
-          // TODO: 상세 모달 오픈 (PRD §5.3)
+          openModal(project, card);
         });
       }
 
@@ -366,6 +483,57 @@
     const grid = document.getElementById('project-grid');
     projects.forEach(function (project) {
       grid.appendChild(renderCard(project));
+    });
+
+    // ---------- Detail Modal ----------
+
+    const overlay = document.getElementById('modal-overlay');
+    const modalClose = document.getElementById('modal-close');
+    const modalOrder = document.getElementById('modal-order');
+    const modalTitle = document.getElementById('modal-title');
+    const modalTagline = document.getElementById('modal-tagline');
+    const modalLink = document.getElementById('modal-link');
+    let lastFocusedCard = null;
+
+    function openModal(project, triggerEl) {
+      lastFocusedCard = triggerEl;
+      modalOrder.textContent = pad(project.order);
+      modalTitle.textContent = project.title || '';
+      modalTagline.textContent = project.tagline || '';
+
+      if (project.link) {
+        modalLink.href = project.link;
+        modalLink.hidden = false;
+      } else {
+        modalLink.hidden = true;
+      }
+
+      overlay.hidden = false;
+      document.body.classList.add('modal-open');
+      modalClose.focus();
+    }
+
+    function closeModal() {
+      overlay.hidden = true;
+      document.body.classList.remove('modal-open');
+      if (lastFocusedCard) {
+        lastFocusedCard.focus();
+        lastFocusedCard = null;
+      }
+    }
+
+    modalClose.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !overlay.hidden) {
+        closeModal();
+      }
     });
   </script>
 </body>
