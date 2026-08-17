@@ -122,6 +122,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+  }
+
+  .card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
   }
 
   .card-thumb-number {
@@ -427,7 +435,7 @@
   <script>
     // data/projects.ts (PRD §6)와 동일한 구조. 지금은 전부 coming-soon.
     const projects = [
-      { order: 1, status: 'done', title: 'Food Review', tagline: '음식점 리뷰 웹앱', link: 'https://food-review-gamma.vercel.app/' },
+      { order: 1, status: 'done', title: 'Food Review', tagline: '음식점 리뷰 웹앱', link: 'https://food-review-gamma.vercel.app/', thumb: 'assets/thumbnails/food-review.jpg' },
       { order: 2, status: 'coming-soon', title: null },
       { order: 3, status: 'coming-soon', title: null },
       { order: 4, status: 'coming-soon', title: null },
@@ -462,8 +470,12 @@
         card.type = 'button';
       }
 
+      const thumbContent = project.thumb
+        ? '<img src="' + project.thumb + '" alt="' + title + ' 썸네일" loading="lazy">'
+        : '<span class="card-thumb-number">' + orderLabel + '</span>';
+
       card.innerHTML =
-        '<div class="card-thumb"><span class="card-thumb-number">' + orderLabel + '</span></div>' +
+        '<div class="card-thumb">' + thumbContent + '</div>' +
         '<div class="card-body">' +
           '<span class="card-order">' + orderLabel + '</span>' +
           '<h2 class="card-title">' + title + '</h2>' +
