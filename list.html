@@ -109,6 +109,7 @@
     border-radius: 2px;
     background: var(--bg);
     overflow: hidden;
+    text-decoration: none;
     transform: translateY(0);
     transition: background var(--duration-fast) var(--ease),
                 border-color var(--duration-fast) var(--ease),
@@ -303,7 +304,7 @@
   <script>
     // data/projects.ts (PRD §6)와 동일한 구조. 지금은 전부 coming-soon.
     const projects = [
-      { order: 1, status: 'coming-soon', title: null },
+      { order: 1, status: 'done', title: 'Food Review', tagline: '음식점 리뷰 웹앱', link: 'https://food-review-gamma.vercel.app/' },
       { order: 2, status: 'coming-soon', title: null },
       { order: 3, status: 'coming-soon', title: null },
       { order: 4, status: 'coming-soon', title: null },
@@ -330,10 +331,16 @@
       const title = project.title || 'Coming Soon';
       const tagline = project.tagline || '';
 
-      const card = document.createElement(isComingSoon ? 'div' : 'button');
+      const hasLink = !isComingSoon && !!project.link;
+      const tag = isComingSoon ? 'div' : (hasLink ? 'a' : 'button');
+      const card = document.createElement(tag);
       card.className = 'card' + (isComingSoon ? ' is-disabled' : '');
       if (isComingSoon) {
         card.setAttribute('aria-disabled', 'true');
+      } else if (hasLink) {
+        card.href = project.link;
+        card.target = '_blank';
+        card.rel = 'noopener';
       } else {
         card.type = 'button';
       }
@@ -347,7 +354,7 @@
           '<span class="badge ' + badge.className + '">' + badge.text + '</span>' +
         '</div>';
 
-      if (!isComingSoon) {
+      if (!isComingSoon && !hasLink) {
         card.addEventListener('click', function () {
           // TODO: 상세 모달 오픈 (PRD §5.3)
         });
